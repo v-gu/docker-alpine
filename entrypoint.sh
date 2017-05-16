@@ -1,4 +1,11 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+env
+set -x
+
+function cleanup {
+    echo "got signal, quit now" >&2
+}
+trap cleanup SIGINT SIGTERM
 
 # define process array
 proc_comms=()
@@ -10,17 +17,26 @@ do
     v_proc_cmdline="PROC${index}"
     v_proc_comm="PROC${index}_NAME"
     v_proc_bg="PROC${index}_BG"
+    v_proc_script_dirname="PROC${index}_SCRIPT_DIRNAME"
 
     # no more process definitions, exit loop
-    if [ -n "${!v_proc_cmdline+x}" ]; then break; fi
+    if [ -z "${!v_proc_cmdline+x}" ]; then break; fi
 
     proc_cmdline="${!v_proc_cmdline}"
     proc_comm_augs="$(basename ${proc_cmdline})"
     proc_comm_deducted="${proc_cmdline%% *}"
     proc_comm="${!v_proc_comm:-${proc_comm_deducted}}"
     proc_bg="${!v_proc_bg:-true}"
+    proc_script_dirname="${!v_proc_script_dirname:-${proc_comm}}"
 
     procs+=("${proc_comm}")
+
+    # execute process config script
+    pwd="${PWD}"
+    proc_script_dir=${PROC_SCRIPTS_DIR}/${proc_script_dirname}
+    cd "${proc_script_dir}"
+    ${proc_script_dir}/main.sh
+    cd "${pwd}"
 
     # test if currently we are on PROC1 and there is no PROC2 definition, exec cmdline directly
     if [ $index -eq 1 -a -z "${PROC2+x}" ]; then
@@ -38,13 +54,19 @@ do
     if [ "${proc_bg}" != "true" ]; then
         status=$?
         if [ $status -ne 0 ]; then
-            echo "Failed to start ${proc_cmdline}: ${status}"
+            echo "Failed to start ${proc_cmdline}: ${status}" >&2
             exit $status
         fi
     fi
 
     index=$((index+1))
 done
+
+# check total process number
+if [ ${#proc_comms[@]} -eq 0 ]; then
+    echo "no process started, quit" >&2
+    exit 1
+fi
 
 # Naive check runs checks once a minute to see if either of the processes exited.
 # This illustrates part of the heavy lifting you need to do if you want to run
@@ -59,7 +81,7 @@ while /bin/true; do
         # If the greps above find anything, they will exit with 0 status
         # If they are not both 0, then something is wrong
         if [ $status -ne 0 ]; then
-            echo "${proc_comms[$i]} has already exited."
+            echo "${proc_comms[$i]} has already exited." >&2
             exit -1
         fi
     done
