@@ -7,18 +7,10 @@ FROM alpine:3.5
 MAINTAINER Vincent.Gu <g@v-io.co>
 
 ENV LANG=C.utf8 \
-    LC_ALL=C.utf8 \
-    TZ=Asia/Hong_Kong
+    LC_ALL=C.utf8
 
 # define default directory
 WORKDIR /srv
-
-# change timezone accordingly
-ONBUILD RUN \
-  apk --update --no-cache add tzdata && \
-  cp /usr/share/zoneinfo/$TZ /etc/localtime && \
-  echo "$TZ" > /etc/timezone && \
-  apk del --purge tzdata
 
 # add entrypoint
 ADD entrypoint.sh /
