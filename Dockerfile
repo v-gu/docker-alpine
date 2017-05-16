@@ -8,6 +8,7 @@ MAINTAINER Vincent Gu <g@v-io.co>
 
 ENV LANG=C.utf8 \
     LC_ALL=C.utf8 \
+    INIT_DEBUG=false \
     APP_BASEDIR=/srv \
     PROC_SCRIPTS_DIR=/srv/_scripts
 

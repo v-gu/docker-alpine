@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-env
-set -x
+
+if [ "${INIT_DEBUG}" == true ]; then
+    env
+    set -x
+fi
 
 function cleanup {
     echo "got signal, quit now" >&2
