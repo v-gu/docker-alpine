@@ -46,7 +46,6 @@ do
     fi
 
     # start daemon/background process
-    proc_real_cmdline="${proc_cmdline}"
     if [ "${proc_isdaemon}" != "true" ]; then
         # this is a foreground process
         # test if we are currently on PROC1 and there is no PROC2 definition, exec cmdline directly
@@ -54,11 +53,12 @@ do
             exec ${proc_cmdline}
         else
             # run it in background
-            proc_real_cmdline="${proc_real_cmdline} &"
+            ${proc_cmdline} &
         fi
+    else
+        # this is a daemon process, simply execute it
+        ${proc_cmdline}
     fi
-    ## execute cmdline
-    ${proc_real_cmdline}
 
     # check daemon process exit status
     if [ "${proc_isdaemon}" == "true" ]; then
