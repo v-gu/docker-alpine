@@ -19,7 +19,7 @@ while /bin/true
 do
     v_proc_cmdline="PROC${index}"
     v_proc_comm="PROC${index}_NAME"
-    v_proc_bg="PROC${index}_BG"
+    v_proc_isdaemon="PROC${index}_ISDAEMON"
     v_proc_script_dirname="PROC${index}_SCRIPT_DIRNAME"
 
     # no more process definitions, exit loop
@@ -29,7 +29,7 @@ do
     proc_comm_augs="$(basename ${proc_cmdline})"
     proc_comm_deducted="${proc_cmdline%% *}"
     proc_comm="${!v_proc_comm:-${proc_comm_deducted}}"
-    proc_bg="${!v_proc_bg:-true}"
+    proc_isdaemon="${!v_proc_isdaemon:-false}"
     proc_script_dirname="${!v_proc_script_dirname:-${proc_comm}}"
 
     procs+=("${proc_comm}")
@@ -41,20 +41,23 @@ do
     ${proc_script_dir}/main.sh
     cd "${pwd}"
 
-    # test if currently we are on PROC1 and there is no PROC2 definition, exec cmdline directly
-    if [ $index -eq 1 -a -z "${PROC2+x}" ]; then
-        exec ${proc_cmdline}
-    fi
-
     # start daemon/background process
     proc_real_cmdline="${proc_cmdline}"
-    if [ "${proc_bg}" == "true" ]; then
-        proc_real_cmdline="${proc_real_cmdline} &"
+    if [ "${proc_isdaemon}" != "true" ]; then
+        # this is a foreground process
+        # test if we are currently on PROC1 and there is no PROC2 definition, exec cmdline directly
+        if [ $index -eq 1 -a -z "${PROC2+x}" ]; then
+            exec ${proc_cmdline}
+        else
+            # run it in background
+            proc_real_cmdline="${proc_real_cmdline} &"
+        fi
     fi
+    ## execute cmdline
     ${proc_real_cmdline}
 
     # check daemon process exit status
-    if [ "${proc_bg}" != "true" ]; then
+    if [ "${proc_isdaemon}" == "true" ]; then
         status=$?
         if [ $status -ne 0 ]; then
             echo "Failed to start ${proc_cmdline}: ${status}" >&2

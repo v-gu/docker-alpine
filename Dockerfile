@@ -33,7 +33,7 @@ RUN set -ex && \
 #
 #   PROC1=/usr/bin/proc1        # this process's command
 #   PROC1_NAME=proc1            # keyword used to check process healthness
-#   PROC1_BG=false              # run this process in background or not
+#   PROC1_ISDAEMON=false        # denotes if this process is a daemon process
 #   PROC1_SCRIPT_DIRNAME=<name> # optional, defaults to PROC_NAME. located at
 #                               # ${PROC_SCRIPTS_DIR}/<name>, and
 #                               # ${PROC_SCRIPTS_DIR}/<name>/main.sh will be
