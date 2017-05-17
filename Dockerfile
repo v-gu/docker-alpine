@@ -20,7 +20,7 @@ ADD entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 RUN set -ex && \
-    DEP=bash && \
+    DEP='bash gawk' && \
     apk add --update --no-cache $DEP && \
     rm -rf /var/cache/apk/*
 
