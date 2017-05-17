@@ -26,13 +26,13 @@ do
     if [ -z "${!v_proc_cmdline+x}" ]; then break; fi
 
     proc_cmdline="${!v_proc_cmdline}"
-    proc_comm_augs="$(basename ${proc_cmdline})"
+    proc_comm_augs="$(basename '${proc_cmdline}')"
     proc_comm_deducted="${proc_cmdline%% *}"
     proc_comm="${!v_proc_comm:-${proc_comm_deducted}}"
     proc_isdaemon="${!v_proc_isdaemon:-false}"
     proc_script_dirname="${!v_proc_script_dirname:-${proc_comm}}"
 
-    procs+=("${proc_comm}")
+    proc_comms+=("${proc_comm}")
 
     # execute process config script
     pwd="${PWD}"
@@ -87,11 +87,11 @@ fi
 while /bin/true; do
     length=${#proc_comms[@]}
     for i in $(seq 0 $((length-1))); do
-        status=$(ps aux |grep -q "${proc_comms[$i]}" |grep -v grep)
+        ps aux |grep "${proc_comms[$i]}"|grep -v grep >/dev/null 2>&1
         # If the greps above find anything, they will exit with 0 status
         # If they are not both 0, then something is wrong
-        if [ $status -ne 0 ]; then
-            echo "${proc_comms[$i]} has already exited." >&2
+        if [ $? -ne 0 ]; then
+            echo "process '${proc_comms[$i]}' has already exited, exit now ..." >&2
             exit -1
         fi
     done
