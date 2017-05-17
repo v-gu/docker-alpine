@@ -36,10 +36,14 @@ do
 
     # execute process config script
     pwd="${PWD}"
-    proc_script_dir=${PROC_SCRIPTS_DIR}/${proc_script_dirname}
-    cd "${proc_script_dir}"
-    ${proc_script_dir}/main.sh
-    cd "${pwd}"
+    proc_script_dir="${PROC_SCRIPTS_DIR}/${proc_script_dirname}"
+    proc_script_file="${proc_script_dir}/main.sh"
+    if [ -x "${proc_script_file}" ]; then
+        echo "found script for app '${proc_comm}' at '${proc_script_file}', load it now ..." >&2
+        cd "${proc_script_dir}"
+        ${proc_script_dir}/main.sh
+        cd "${pwd}"
+    fi
 
     # start daemon/background process
     proc_real_cmdline="${proc_cmdline}"
