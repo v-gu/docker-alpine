@@ -23,4 +23,7 @@ RUN set -ex && \
     apk add --update --no-cache $DEP && \
     rm -rf /var/cache/apk/*
 
-# app start-up script should be placed in APP_DIR and named run.sh
+# app start-up script should be placed in APP_DIR and named run.sh,
+# and it will be auto added by 'docker build' from
+# '<build_root>/imagescripts/run.sh'
+ONBUILD ADD imagescripts/run.sh ${APP_DIR}/run.sh
