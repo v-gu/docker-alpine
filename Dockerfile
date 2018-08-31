@@ -3,7 +3,7 @@
 # Dockerfile for alpine
 #
 
-FROM alpine:3.6
+FROM alpine:edge
 MAINTAINER Vincent Gu <v@vgu.io>
 
 ENV LANG=C.utf8 \
