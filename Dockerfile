@@ -23,6 +23,8 @@ RUN set -ex && \
     apk add --update --no-cache $DEP && \
     rm -rf /var/cache/apk/*
 
+RUN mkdir -p ${ROOT_DIR}
+
 # app start-up script should be placed in ROOT_DIR and named run.sh,
 # and it will be auto added by 'docker build' from
 # '<build_root>/imagescripts/run.sh'
